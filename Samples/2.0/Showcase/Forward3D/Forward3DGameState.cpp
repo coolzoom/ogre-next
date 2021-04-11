@@ -28,7 +28,18 @@
 #include "OgreOverlayManager.h"
 #include "OgreOverlayContainer.h"
 #include "OgreOverlay.h"
-
+#include <fstream>
+#include <iostream>
+#include <sstream>    // std::stringstream
+#include <stdexcept>  // std::runtime_error
+#include <string>
+#include <utility>  // std::pair
+#include <vector>
+#include "OgreHlmsManager.h"
+#include "OgreHlmsPbs.h"
+#include "OgreRoot.h"
+#include "OgreTextureFilters.h"
+#include "OgreTextureGpuManager.h"
 using namespace Demo;
 
 namespace Demo
@@ -119,27 +130,105 @@ namespace Demo
                 mSceneNode[idx]->attachObject( item );
             }
         }
-
-        for( int i=0; i<64; ++i )
+        // load csv
         {
-            Ogre::Item *item = sceneManager->createItem( "Cube_d.mesh",
-                                                         Ogre::ResourceGroupManager::
-                                                         AUTODETECT_RESOURCE_GROUP_NAME,
-                                                         Ogre::SCENE_STATIC );
+            int mNumSpheres = 0;
+            std::ifstream file( "C:\\Users\\Administrator\\Desktop\\data2.csv" );
+            std::vector<std::vector<std::string> > matrix;
+            std::vector<std::string> row;
+            std::string line;
+            std::string cell;
 
-            Ogre::SceneNode *sceneNode = sceneManager->getRootSceneNode( Ogre::SCENE_STATIC )->
-                    createChildSceneNode( Ogre::SCENE_STATIC );
+            while( file )
+            {
+                std::getline( file, line );
+                std::stringstream lineStream( line );
+                row.clear();
 
-            Ogre::Vector3 vScale( Ogre::Math::RangeRandom( 0.5f, 10.0f ),
-                                  Ogre::Math::RangeRandom( 5.0f, 15.0f ),
-                                  Ogre::Math::RangeRandom( 0.5f, 10.0f ) );
+                while( std::getline( lineStream, cell, ',' ) )
+                    row.push_back( cell );
 
-            sceneNode->setPosition( Ogre::Math::RangeRandom( -250, 250 ),
-                                    vScale.y * 0.5f - 1.0f,
-                                    Ogre::Math::RangeRandom( -250, 250 ) );
-            sceneNode->setScale( vScale );
-            sceneNode->attachObject( item );
+                if( !row.empty() )
+                    matrix.push_back( row );
+            }
+
+            Ogre::Root *root = mGraphicsSystem->getRoot();
+            Ogre::TextureGpuManager *textureMgr = root->getRenderSystem()->getTextureGpuManager();
+
+            Ogre::HlmsManager *hlmsManager = mGraphicsSystem->getRoot()->getHlmsManager();
+
+            assert( dynamic_cast<Ogre::HlmsPbs *>( hlmsManager->getHlms( Ogre::HLMS_PBS ) ) );
+
+            Ogre::HlmsPbs *hlmsPbs =
+                static_cast<Ogre::HlmsPbs *>( hlmsManager->getHlms( Ogre::HLMS_PBS ) );
+
+            for( int i = 0; i < int( matrix.size() ); i++ )
+            {
+                for( int j = 0; j < int( matrix[i].size() ); j++ )
+                {
+                    std::cout << matrix[i][j] << " ";
+                }
+                if( i > 0 )
+                {
+                    float x = std::stof( matrix[i][0] );
+                    float y = std::stof( matrix[i][1] );
+                    float z = std::stof( matrix[i][2] ) * 10;
+                    // do your stuff
+                    // create an ogre head entity and place it at the origin
+                    Ogre::String datablockName =
+                        "Test" + Ogre::StringConverter::toString( mNumSpheres++ );
+                    Ogre::HlmsPbsDatablock *datablock = static_cast<Ogre::HlmsPbsDatablock *>(
+                        hlmsPbs->createDatablock( datablockName, datablockName, Ogre::HlmsMacroblock(),
+                                                  Ogre::HlmsBlendblock(), Ogre::HlmsParamVec() ) );
+
+                    Ogre::TextureGpu *texture = textureMgr->createOrRetrieveTexture(
+                        "SaintPetersBasilica.dds", Ogre::GpuPageOutStrategy::Discard,
+                        Ogre::TextureFlags::PrefersLoadingFromFileAsSRGB, Ogre::TextureTypes::TypeCube,
+                        Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
+                        Ogre::TextureFilter::TypeGenerateDefaultMipmaps );
+
+                    datablock->setTexture( Ogre::PBSM_REFLECTION, texture );
+                    datablock->setDiffuse( Ogre::Vector3( 0.0f, 1.0f, 0.0f ) );
+
+                    datablock->setRoughness( 0.02f );
+                    datablock->setFresnel( Ogre::Vector3( z ), false );
+
+                    Ogre::Item *item = sceneManager->createItem(
+                        "Sphere1000.mesh", Ogre::ResourceGroupManager::AUTODETECT_RESOURCE_GROUP_NAME,
+                        Ogre::SCENE_DYNAMIC );
+                    item->setDatablock( datablock );
+                    item->setVisibilityFlags( 0x000000002 );
+
+                    Ogre::SceneNode *sceneNode = sceneManager->getRootSceneNode( Ogre::SCENE_DYNAMIC )
+                                                     ->createChildSceneNode( Ogre::SCENE_DYNAMIC );
+                    sceneNode->setPosition( Ogre::Vector3( x, y, z ) );
+                    sceneNode->attachObject( item );
+                    std::cout << x << " " << y << " " << z;
+                }
+
+                std::cout << std::endl;
+            }
         }
+        //for( int i=0; i<64; ++i )
+        //{
+        //    Ogre::Item *item = sceneManager->createItem( "Cube_d.mesh",
+        //                                                 Ogre::ResourceGroupManager::
+        //                                                 AUTODETECT_RESOURCE_GROUP_NAME,
+        //                                                 Ogre::SCENE_STATIC );
+
+        //    Ogre::SceneNode *sceneNode = sceneManager->getRootSceneNode( Ogre::SCENE_STATIC )->
+        //            createChildSceneNode( Ogre::SCENE_STATIC );
+
+        //    Ogre::Vector3 vScale( Ogre::Math::RangeRandom( 0.5f, 10.0f ),
+        //                          Ogre::Math::RangeRandom( 5.0f, 15.0f ),
+        //                          Ogre::Math::RangeRandom( 0.5f, 10.0f ) );
+
+        //    sceneNode->setPosition( Ogre::Math::RangeRandom( -250, 250 ),
+        //                            vScale.y * 0.5f - 1.0f,
+        //                            Ogre::Math::RangeRandom( -250, 250 ) );
+        //    sceneNode->setScale( vScale );
+        //    sceneNode->attachObject( item );
+        //}
 
         Ogre::SceneNode *rootNode = sceneManager->getRootSceneNode();
 
