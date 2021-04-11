@@ -17,6 +17,7 @@
 #include "OgreStagingTexture.h"
 #include "OgreTechnique.h"
 #include "OgreTextureGpuManager.h"
+#include "OgreHlmsDatablock.h"
 
 namespace Ogre
 {

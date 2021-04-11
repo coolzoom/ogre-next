@@ -36,8 +36,8 @@ THE SOFTWARE.
 #include "OgreLwString.h"
 #include "OgreStringConverter.h"
 
-#include "rapidjson/document.h"
-#include "rapidjson/error/en.h"
+#include "../rapidjson/include/document.h"
+#include "../rapidjson/include/error/en.h"
 
 #define TODO_limit_NUM_BIND_TEXTURES  // and co.
 

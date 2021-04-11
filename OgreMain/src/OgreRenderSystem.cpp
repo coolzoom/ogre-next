@@ -54,15 +54,15 @@ THE SOFTWARE.
 
 #include "OgreLwString.h"
 
-#if OGRE_NO_RENDERDOC_INTEGRATION == 0
-#    include "renderdoc/renderdoc_app.h"
-#    if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#        define WIN32_LEAN_AND_MEAN
-#        define VC_EXTRALEAN
-#        define NOMINMAX
-#        include <Windows.h>
-#    endif
-#endif
+//#if OGRE_NO_RENDERDOC_INTEGRATION == 0
+//#    include "renderdoc/renderdoc_app.h"
+//#    if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+//#        define WIN32_LEAN_AND_MEAN
+//#        define VC_EXTRALEAN
+//#        define NOMINMAX
+//#        include <Windows.h>
+//#    endif
+//#endif
 
 namespace Ogre {
 
@@ -1380,16 +1380,16 @@ namespace Ogre {
             if( !mRenderDocApi )
                 return false;
         }
-#if OGRE_NO_RENDERDOC_INTEGRATION == 0
-        RENDERDOC_DevicePointer device = 0;
-        RENDERDOC_WindowHandle windowHandle = 0;
-        if( window )
-        {
-            window->getCustomAttribute( "RENDERDOC_DEVICE", device );
-            window->getCustomAttribute( "RENDERDOC_WINDOW", windowHandle );
-        }
-        mRenderDocApi->StartFrameCapture( device, windowHandle );
-#endif
+//#if OGRE_NO_RENDERDOC_INTEGRATION == 0
+//        RENDERDOC_DevicePointer device = 0;
+//        RENDERDOC_WindowHandle windowHandle = 0;
+//        if( window )
+//        {
+//            window->getCustomAttribute( "RENDERDOC_DEVICE", device );
+//            window->getCustomAttribute( "RENDERDOC_WINDOW", windowHandle );
+//        }
+//        mRenderDocApi->StartFrameCapture( device, windowHandle );
+//#endif
         return true;
     }
     //---------------------------------------------------------------------
@@ -1397,16 +1397,16 @@ namespace Ogre {
     {
         if( !mRenderDocApi )
             return;
-#if OGRE_NO_RENDERDOC_INTEGRATION == 0
-        RENDERDOC_DevicePointer device = 0;
-        RENDERDOC_WindowHandle windowHandle = 0;
-        if( window )
-        {
-            window->getCustomAttribute( "RENDERDOC_DEVICE", device );
-            window->getCustomAttribute( "RENDERDOC_WINDOW", windowHandle );
-        }
-        mRenderDocApi->EndFrameCapture( device, windowHandle );
-#endif
+//#if OGRE_NO_RENDERDOC_INTEGRATION == 0
+//        RENDERDOC_DevicePointer device = 0;
+//        RENDERDOC_WindowHandle windowHandle = 0;
+//        if( window )
+//        {
+//            window->getCustomAttribute( "RENDERDOC_DEVICE", device );
+//            window->getCustomAttribute( "RENDERDOC_WINDOW", windowHandle );
+//        }
+//        mRenderDocApi->EndFrameCapture( device, windowHandle );
+//#endif
     }
     //---------------------------------------------------------------------
     bool RenderSystem::loadRenderDocApi( void )
@@ -1423,15 +1423,15 @@ namespace Ogre {
             const int ret = RENDERDOC_GetAPI( eRENDERDOC_API_Version_1_4_1, (void **)&mRenderDocApi );
             return ret == 1;
         }
-#    elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-        HMODULE mod = GetModuleHandleA( "renderdoc.dll" );
-        if( mod )
-        {
-            pRENDERDOC_GetAPI RENDERDOC_GetAPI =
-                (pRENDERDOC_GetAPI)GetProcAddress( mod, "RENDERDOC_GetAPI" );
-            const int ret = RENDERDOC_GetAPI( eRENDERDOC_API_Version_1_4_1, (void **)&mRenderDocApi );
-            return ret == 1;
-        }
+//#    elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+//        HMODULE mod = GetModuleHandleA( "renderdoc.dll" );
+//        if( mod )
+//        {
+//            pRENDERDOC_GetAPI RENDERDOC_GetAPI =
+//                (pRENDERDOC_GetAPI)GetProcAddress( mod, "RENDERDOC_GetAPI" );
+//            const int ret = RENDERDOC_GetAPI( eRENDERDOC_API_Version_1_4_1, (void **)&mRenderDocApi );
+//            return ret == 1;
+//        }
 #    endif
 #endif
         return false;
